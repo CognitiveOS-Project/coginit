@@ -20,10 +20,11 @@ const (
 
 // comboState tracks currently pressed keys and scrolllock timing.
 type comboState struct {
-	mu           sync.Mutex
-	pressed      map[uint16]bool
-	scrollCount  int
-	scrollFirst  time.Time
+	mu             sync.Mutex
+	pressed        map[uint16]bool
+	scrollCount    int
+	scrollFirst    time.Time
+	onTrigger      func(combo string) // override in tests
 }
 
 func newComboState() *comboState {
@@ -220,6 +221,12 @@ func (s *comboState) checkCombos(code uint16) {
 
 // triggerBackdoor spawns the VT2 shell and logs the access.
 func (s *comboState) triggerBackdoor(combo string) {
+	// Allow test override
+	if s.onTrigger != nil {
+		s.onTrigger(combo)
+		return
+	}
+
 	logAccess(combo, "vt2")
 
 	log.Printf("[coginit] BACKDOOR: combo %s triggered, switching to VT2", combo)
