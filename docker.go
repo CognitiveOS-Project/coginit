@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"os/signal"
 	"syscall"
 )
 
@@ -11,7 +10,7 @@ func runDockerInit() {
 	log.Println("[coginit] Starting in Docker mode")
 
 	// 1. Start signal reaper
-	go startSignalReaper()
+	go startSignalReaper(func() { os.Exit(0) })
 
 	// 2. Create runtime directories
 	createRuntimeDirs()
@@ -43,32 +42,5 @@ func runDockerInit() {
 
 	if err := syscall.Exec(cliPath, args, os.Environ()); err != nil {
 		log.Fatalf("[coginit] Failed to exec CLI: %v", err)
-	}
-}
-
-// startSignalReaper handles zombie process reaping and graceful shutdown.
-func startSignalReaper() {
-	sigChan := make(chan os.Signal, 10)
-	signal.Notify(sigChan, syscall.SIGCHLD, syscall.SIGINT, syscall.SIGTERM)
-
-	for sig := range sigChan {
-		switch sig {
-		case syscall.SIGCHLD:
-			// Reap all terminated child processes
-			for {
-				var status syscall.WaitStatus
-				pid, err := syscall.Wait4(-1, &status, syscall.WNOHANG, nil)
-				if err != nil || pid <= 0 {
-					break
-				}
-				log.Printf("[coginit] Reaped PID %d", pid)
-				deleteChildProcess(pid)
-			}
-
-		case syscall.SIGINT, syscall.SIGTERM:
-			log.Println("[coginit] Shutdown signal received, terminating engines...")
-			shutdownAllChildren()
-			os.Exit(0)
-		}
 	}
 }

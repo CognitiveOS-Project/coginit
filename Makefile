@@ -9,11 +9,13 @@ LDFLAGS := -ldflags '-s -w -X main.version=$(VERSION)'
 .PHONY: build build-static clean test lint
 
 build:
-	CGO_ENABLED=0 go build $(LDFLAGS) -o bin/coginit .
+	mkdir -p build/bin
+	CGO_ENABLED=0 go build $(LDFLAGS) -o build/bin/coginit .
 
 build-static:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a $(LDFLAGS) -extldflags '-static' -o bin/coginit .
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a $(LDFLAGS) -extldflags '-static' -o bin/coginit-arm64 .
+	mkdir -p build/bin
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a $(LDFLAGS) -extldflags '-static' -o build/bin/coginit .
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a $(LDFLAGS) -extldflags '-static' -o build/bin/coginit-arm64 .
 
 test:
 	go test ./...
@@ -22,4 +24,4 @@ lint:
 	go vet ./...
 
 clean:
-	rm -rf bin/
+	rm -rf build/
