@@ -10,6 +10,7 @@ import (
 const (
 	defaultSocketTimeout = 10 * time.Second
 	defaultHTTPTimeout   = 15 * time.Second
+	maxLogSizeBytes      = 10 * 1024 * 1024 // 10MB — rotate when exceeded
 )
 
 // createRuntimeDirs ensures required directories exist.
@@ -107,9 +108,22 @@ func startCognitiveosd() {
 }
 
 // openLogFile opens or creates a log file for a service.
+// If the existing log exceeds maxLogSizeBytes, it is rotated to name.log.1.
 func openLogFile(name string) *os.File {
 	path := filepath.Join("/cognitiveos/logs", name+".log")
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+
+	// Rotate if log is too large
+	if info, err := os.Stat(path); err == nil && info.Size() > maxLogSizeBytes {
+		backup := path + ".1"
+		os.Remove(backup) // remove previous backup
+		if err := os.Rename(path, backup); err != nil {
+			log.Printf("[coginit] Warning: failed to rotate %s: %v", path, err)
+		} else {
+			log.Printf("[coginit] Rotated %s (%d bytes)", path, info.Size())
+		}
+	}
+
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		log.Printf("[coginit] Warning: failed to open log file %s: %v", path, err)
 		return os.Stderr
