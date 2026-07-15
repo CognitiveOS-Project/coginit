@@ -39,9 +39,12 @@ func runBareMetalInit() {
 	// 7. Install runtime-stage dependencies
 	installDependencies("runtime")
 
-	log.Println("[coginit] All engines started. Starting TUI supervision loop...")
+	log.Println("[coginit] All engines started. Starting backdoor monitor...")
 
-	// 8. TUI supervision loop (restarts CLI on crash)
+	// 8. Start backdoor monitor (keyboard combos + serial)
+	go startBackdoorMonitor()
+
+	// 9. TUI supervision loop (restarts CLI on crash)
 	tuiSupervisionLoop()
 }
 
