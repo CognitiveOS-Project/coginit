@@ -1,4 +1,4 @@
-package main
+package coginit
 
 import (
 	"os"
@@ -25,9 +25,9 @@ func TestIsDocker_NoContainer(t *testing.T) {
 
 	os.Unsetenv("container")
 
-	// In a non-Docker environment, isDocker should return false
+	// In a non-Docker environment, IsDocker should return false
 	// (unless /.dockerenv or /run/.containerenv exist, which they shouldn't in test)
-	result := isDocker()
+	result := IsDocker()
 	// We can't assert false because the test runner might be in a container
 	// Just verify it doesn't panic
 	_ = result
@@ -36,7 +36,7 @@ func TestIsDocker_NoContainer(t *testing.T) {
 func TestVersion(t *testing.T) {
 	// version is set via ldflags at build time
 	// In tests, it's the default "dev"
-	if version != "dev" {
-		t.Fatalf("expected version 'dev' in test, got %q", version)
+	if Version() != "dev" {
+		t.Fatalf("expected version 'dev' in test, got %q", Version())
 	}
 }

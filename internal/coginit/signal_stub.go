@@ -1,6 +1,6 @@
 //go:build !linux
 
-package main
+package coginit
 
 // startSignalReaper is a no-op on non-Linux platforms.
 func startSignalReaper(onShutdown func()) {}

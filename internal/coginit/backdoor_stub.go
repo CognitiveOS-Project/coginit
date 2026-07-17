@@ -1,6 +1,6 @@
 //go:build !linux
 
-package main
+package coginit
 
 // startBackdoorMonitor is a no-op on non-Linux platforms.
 func startBackdoorMonitor() {}

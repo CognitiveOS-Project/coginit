@@ -1,4 +1,4 @@
-package main
+package coginit
 
 import (
 	"net"
