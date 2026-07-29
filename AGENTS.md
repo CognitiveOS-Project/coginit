@@ -44,6 +44,9 @@ make build-static
 # Force bare-metal mode
 ./coginit --bare-metal
 
+# Custom raw model path
+./coginit --model /cognitiveos/models/raw/my-model.gguf
+
 # Show version
 ./coginit --version
 ```

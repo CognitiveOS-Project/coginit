@@ -13,7 +13,7 @@ func main() {
 	showVersion := flag.Bool("version", false, "Print version and exit")
 	forceDocker := flag.Bool("docker", false, "Force Docker mode")
 	forceBareMetal := flag.Bool("bare-metal", false, "Force bare-metal mode")
-	modelPath := flag.String("model", "/cognitiveos/models/raw/raw-model.gguf", "Path to raw model GGUF file")
+	modelPath := flag.String("model", coginit.DefaultModelPath(), "Path to raw model GGUF file")
 	flag.Parse()
 
 	if *showVersion {
