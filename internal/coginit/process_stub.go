@@ -14,3 +14,6 @@ func registerChildProcess(name string, cmd *exec.Cmd) {}
 
 // deleteChildProcess is a no-op on non-Linux platforms.
 func deleteChildProcess(pid int) {}
+
+// supervise is a no-op on non-Linux platforms.
+func supervise(name string, cmd *exec.Cmd, restartFn func() *exec.Cmd) {}

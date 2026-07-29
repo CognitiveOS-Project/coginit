@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"sync"
 	"syscall"
+	"time"
 )
 
 var (
@@ -42,6 +43,34 @@ func deleteChildProcess(pid int) {
 	}
 }
 
+// supervise watches a child process and restarts it on exit.
+// The restartFn is called to create and start a new instance.
+func supervise(name string, cmd *exec.Cmd, restartFn func() *exec.Cmd) {
+	go func() {
+		for {
+			err := cmd.Wait()
+			pid := 0
+			if cmd.Process != nil {
+				pid = cmd.Process.Pid
+			}
+			deleteChildProcess(pid)
+			if err != nil {
+				log.Printf("[coginit] %s exited: %v, restarting in 500ms", name, err)
+			} else {
+				log.Printf("[coginit] %s exited cleanly, restarting in 500ms", name)
+			}
+			time.Sleep(500 * time.Millisecond)
+
+			cmd = restartFn()
+			if cmd == nil {
+				log.Printf("[coginit] Failed to restart %s, retrying in 1s", name)
+				time.Sleep(1 * time.Second)
+				continue
+			}
+		}
+	}()
+}
+
 // shutdownAllChildren sends SIGTERM to all tracked processes.
 func shutdownAllChildren() {
 	childMu.Lock()
@@ -50,7 +79,6 @@ func shutdownAllChildren() {
 	for name, cmd := range childProcesses {
 		if cmd.Process != nil {
 			log.Printf("[coginit] Terminating %s (PID %d)...", name, cmd.Process.Pid)
-			// Send SIGTERM to the process group
 			_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
 		}
 	}

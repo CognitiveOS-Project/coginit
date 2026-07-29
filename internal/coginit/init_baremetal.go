@@ -28,15 +28,24 @@ func runBareMetalInit() {
 	// 5. Install boot-stage dependencies
 	installDependencies("boot")
 
-	// 6. Start engines in order
-	startCograw()
+	// 6. Start engines in order with supervision
+	cmd := startCograw()
 	waitForSocket("/cognitiveos/run/raw.sock", defaultSocketTimeout)
+	if cmd != nil {
+		supervise("cograw", cmd, startCograw)
+	}
 
-	startCoginfer()
+	cmd = startCoginfer()
 	waitForHTTP("http://127.0.0.1:11434/health", defaultHTTPTimeout)
+	if cmd != nil {
+		supervise("coginfer", cmd, startCoginfer)
+	}
 
-	startCognitiveosd()
+	cmd = startCognitiveosd()
 	waitForSocket("/cognitiveos/run/daemon.sock", defaultSocketTimeout)
+	if cmd != nil {
+		supervise("cognitiveosd", cmd, startCognitiveosd)
+	}
 
 	// 7. Install runtime-stage dependencies
 	installDependencies("runtime")

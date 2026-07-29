@@ -3,6 +3,7 @@ package coginit
 import (
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 )
@@ -12,6 +13,15 @@ const (
 	defaultHTTPTimeout   = 15 * time.Second
 	maxLogSizeBytes      = 10 * 1024 * 1024 // 10MB — rotate when exceeded
 )
+
+// modelPath is the path to the raw model GGUF file.
+// Override via coginit --model flag or SetModelPath().
+var modelPath = "/cognitiveos/models/raw/raw-model.gguf"
+
+// SetModelPath overrides the default raw model path.
+func SetModelPath(path string) {
+	modelPath = path
+}
 
 // createRuntimeDirs ensures required directories exist.
 func createRuntimeDirs() {
@@ -44,11 +54,12 @@ func installDependencies(stage string) {
 }
 
 // startCograw starts the raw model guardrail server.
-func startCograw() {
+// Returns the command, or nil if start failed.
+func startCograw() *exec.Cmd {
 	log.Println("[coginit] Starting cograw...")
 
 	args := []string{
-		"--model", "/cognitiveos/models/raw/raw-model.gguf",
+		"--model", modelPath,
 		"--socket", "/cognitiveos/run/raw.sock",
 	}
 
@@ -59,15 +70,17 @@ func startCograw() {
 
 	if err := cmd.Start(); err != nil {
 		log.Printf("[coginit] Failed to start cograw: %v", err)
-		return
+		return nil
 	}
 
 	registerChildProcess("cograw", cmd)
 	log.Printf("[coginit] cograw started (PID %d)", cmd.Process.Pid)
+	return cmd
 }
 
 // startCoginfer starts the wide model inference server.
-func startCoginfer() {
+// Returns the command, or nil if start failed.
+func startCoginfer() *exec.Cmd {
 	log.Println("[coginit] Starting coginfer...")
 
 	args := []string{
@@ -82,15 +95,17 @@ func startCoginfer() {
 
 	if err := cmd.Start(); err != nil {
 		log.Printf("[coginit] Failed to start coginfer: %v", err)
-		return
+		return nil
 	}
 
 	registerChildProcess("coginfer", cmd)
 	log.Printf("[coginit] coginfer started (PID %d)", cmd.Process.Pid)
+	return cmd
 }
 
 // startCognitiveosd starts the system daemon.
-func startCognitiveosd() {
+// Returns the command, or nil if start failed.
+func startCognitiveosd() *exec.Cmd {
 	log.Println("[coginit] Starting cognitiveosd...")
 
 	logFile := openLogFile("cognitiveosd")
@@ -100,11 +115,12 @@ func startCognitiveosd() {
 
 	if err := cmd.Start(); err != nil {
 		log.Printf("[coginit] Failed to start cognitiveosd: %v", err)
-		return
+		return nil
 	}
 
 	registerChildProcess("cognitiveosd", cmd)
 	log.Printf("[coginit] cognitiveosd started (PID %d)", cmd.Process.Pid)
+	return cmd
 }
 
 // openLogFile opens or creates a log file for a service.

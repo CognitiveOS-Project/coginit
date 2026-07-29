@@ -9,27 +9,17 @@ import (
 	"syscall"
 )
 
-// startSignalReaper handles zombie process reaping and graceful shutdown.
+// startSignalReaper handles graceful shutdown.
+// SIGCHLD is NOT handled here — process supervision goroutines
+// (supervise) reap and restart each child individually.
 // The onShutdown callback is called when SIGINT/SIGTERM is received
 // after all children are terminated.
 func startSignalReaper(onShutdown func()) {
 	sigChan := make(chan os.Signal, 10)
-	signal.Notify(sigChan, syscall.SIGCHLD, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	for sig := range sigChan {
 		switch sig {
-		case syscall.SIGCHLD:
-			// Reap all terminated child processes
-			for {
-				var status syscall.WaitStatus
-				pid, err := syscall.Wait4(-1, &status, syscall.WNOHANG, nil)
-				if err != nil || pid <= 0 {
-					break
-				}
-				log.Printf("[coginit] Reaped PID %d", pid)
-				deleteChildProcess(pid)
-			}
-
 		case syscall.SIGINT, syscall.SIGTERM:
 			log.Println("[coginit] Shutdown signal received, terminating engines...")
 			shutdownAllChildren()
