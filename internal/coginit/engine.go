@@ -131,7 +131,7 @@ func openLogFile(name string) *os.File {
 	// Rotate if log is too large
 	if info, err := os.Stat(path); err == nil && info.Size() > maxLogSizeBytes {
 		backup := path + ".1"
-		os.Remove(backup) // remove previous backup
+		_ = os.Remove(backup) // remove previous backup
 		if err := os.Rename(path, backup); err != nil {
 			log.Printf("[coginit] Warning: failed to rotate %s: %v", path, err)
 		} else {

@@ -72,7 +72,7 @@ func watchInputDevices() {
 		log.Printf("[coginit] Warning: inotify init failed: %v", err)
 		return
 	}
-	defer syscall.Close(fd)
+	defer func() { _ = syscall.Close(fd) }()
 
 	_, err = syscall.InotifyAddWatch(fd, "/dev/input", syscall.IN_CREATE)
 	if err != nil {
@@ -134,7 +134,7 @@ func readEvdevLoop(path string) {
 		log.Printf("[coginit] Warning: failed to open %s: %v", path, err)
 		return
 	}
-	defer syscall.Close(fd)
+	defer func() { _ = syscall.Close(fd) }()
 
 	state := newComboState()
 	var event inputEvent
@@ -257,7 +257,7 @@ func spawnShell(tty string, combo string) {
 		log.Printf("[coginit] BACKDOOR: failed to open %s: %v", tty, err)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	cmd := exec.Command("/bin/sh")
 	cmd.Stdin = f
@@ -269,9 +269,9 @@ func spawnShell(tty string, combo string) {
 		Ctty:    int(f.Fd()),
 	}
 
-	fmt.Fprintf(f, "\r\nBACKDOOR SHELL — CognitiveOS firmware override\r\n")
-	fmt.Fprintf(f, "Combo: %s | TTY: %s\r\n", combo, tty)
-	fmt.Fprintf(f, "Type 'exit' to return to TUI.\r\n\r\n")
+	_, _ = fmt.Fprintf(f, "\r\nBACKDOOR SHELL — CognitiveOS firmware override\r\n")
+	_, _ = fmt.Fprintf(f, "Combo: %s | TTY: %s\r\n", combo, tty)
+	_, _ = fmt.Fprintf(f, "Type 'exit' to return to TUI.\r\n\r\n")
 
 	if err := cmd.Run(); err != nil {
 		log.Printf("[coginit] BACKDOOR: shell on %s exited: %v", tty, err)
@@ -285,9 +285,9 @@ func logAccess(combo string, channel string) {
 		log.Printf("[coginit] BACKDOOR: failed to open log: %v", err)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	fmt.Fprintf(f, "%s combo=%s channel=%s\n", time.Now().UTC().Format(time.RFC3339), combo, channel)
+	_, _ = fmt.Fprintf(f, "%s combo=%s channel=%s\n", time.Now().UTC().Format(time.RFC3339), combo, channel)
 }
 
 // startSerialBackdoor watches /dev/ttyAMA0 for input and spawns shells.
@@ -314,7 +314,7 @@ func startSerialBackdoor() {
 		buf := make([]byte, 1)
 		_, err = f.Read(buf)
 		if err != nil {
-			f.Close()
+			_ = f.Close()
 			time.Sleep(time.Second)
 			continue
 		}
@@ -333,13 +333,13 @@ func startSerialBackdoor() {
 			Ctty:    int(f.Fd()),
 		}
 
-		fmt.Fprintf(f, "\r\nBACKDOOR SHELL — CognitiveOS firmware override\r\n")
-		fmt.Fprintf(f, "Channel: UART /dev/ttyAMA0\r\n")
-		fmt.Fprintf(f, "Type 'exit' to disconnect.\r\n\r\n")
+		_, _ = fmt.Fprintf(f, "\r\nBACKDOOR SHELL — CognitiveOS firmware override\r\n")
+		_, _ = fmt.Fprintf(f, "Channel: UART /dev/ttyAMA0\r\n")
+		_, _ = fmt.Fprintf(f, "Type 'exit' to disconnect.\r\n\r\n")
 
 		// Keep serial fd open while shell runs
-		cmd.Run()
-		f.Close()
+		_ = cmd.Run()
+		_ = f.Close()
 
 		log.Println("[coginit] BACKDOOR: serial shell exited, watching for next connection")
 	}
