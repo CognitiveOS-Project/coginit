@@ -7,8 +7,8 @@ import (
 
 func TestIsDocker_WithDockerenv(t *testing.T) {
 	// Test env var detection
-	os.Setenv("container", "docker")
-	defer os.Unsetenv("container")
+	_ = os.Setenv("container", "docker")
+	defer func() { _ = os.Unsetenv("container") }()
 
 	// isDocker checks env var among other things
 	// In a real container, /.dockerenv would exist
@@ -21,9 +21,9 @@ func TestIsDocker_WithDockerenv(t *testing.T) {
 func TestIsDocker_NoContainer(t *testing.T) {
 	// Save and restore
 	saved := os.Getenv("container")
-	defer os.Setenv("container", saved)
+	defer func() { _ = os.Setenv("container", saved) }()
 
-	os.Unsetenv("container")
+	_ = os.Unsetenv("container")
 
 	// In a non-Docker environment, IsDocker should return false
 	// (unless /.dockerenv or /run/.containerenv exist, which they shouldn't in test)

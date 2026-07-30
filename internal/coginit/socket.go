@@ -27,7 +27,7 @@ func waitForHTTP(url string, timeout time.Duration) {
 	for time.Now().Before(deadline) {
 		resp, err := client.Get(url)
 		if err == nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			if resp.StatusCode == http.StatusOK {
 				log.Printf("[coginit] HTTP ready: %s", url)
 				return

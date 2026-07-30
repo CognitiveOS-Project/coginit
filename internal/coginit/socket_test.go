@@ -58,11 +58,11 @@ func TestWaitForHTTP_Found(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to listen: %v", err)
 	}
-	defer ln.Close()
+	defer func() { _ = ln.Close() }()
 
-	go http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	go func() { _ = http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-	}))
+	})) }()
 
 	waitForHTTP("http://"+ln.Addr().String()+"/health", 2*time.Second)
 }

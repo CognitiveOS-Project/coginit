@@ -57,7 +57,7 @@ func vtActivate(num int) error {
 	if err != nil {
 		return err
 	}
-	defer fd.Close()
+	defer func() { _ = fd.Close() }()
 	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd.Fd(), ioctlVTActivate, uintptr(num))
 	if errno != 0 {
 		return errno
@@ -71,7 +71,7 @@ func vtWaitActive(num int) error {
 	if err != nil {
 		return err
 	}
-	defer fd.Close()
+	defer func() { _ = fd.Close() }()
 	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd.Fd(), ioctlVTWaitActive, uintptr(num))
 	if errno != 0 {
 		return errno
@@ -85,7 +85,7 @@ func isKeyboard(path string) bool {
 	if err != nil {
 		return false
 	}
-	defer syscall.Close(fd)
+	defer func() { _ = syscall.Close(fd) }()
 
 	// Query EV_KEY bitmask: EVIOCGBIT(EV_KEY, 32 bytes)
 	var bitmap [evKeyBitSize]byte

@@ -202,8 +202,8 @@ func TestLogAccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to open log: %v", err)
 	}
-	_, err = f.WriteString("2026-01-01T00:00:00Z combo=TestCombo channel=vt2\n")
-	f.Close()
+	_, _ = f.WriteString("2026-01-01T00:00:00Z combo=TestCombo channel=vt2\n")
+	_ = f.Close()
 
 	data, err := os.ReadFile(logPath)
 	if err != nil {

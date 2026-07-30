@@ -51,7 +51,7 @@ func TestRegisterAndDeleteChildProcess(t *testing.T) {
 	childMu.Unlock()
 
 	// Wait for the process to finish
-	cmd.Wait()
+	_ = cmd.Wait()
 }
 
 func TestDeleteChildProcess_NotFound(t *testing.T) {
