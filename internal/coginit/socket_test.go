@@ -18,7 +18,7 @@ func TestWaitForSocket_Found(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create socket file: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	// Should find it immediately
 	waitForSocket(sockPath, 500*time.Millisecond)
@@ -46,7 +46,7 @@ func TestWaitForSocket_EventuallyAppears(t *testing.T) {
 	go func() {
 		time.Sleep(200 * time.Millisecond)
 		f, _ := os.Create(sockPath)
-		f.Close()
+		_ = f.Close()
 	}()
 
 	waitForSocket(sockPath, 2*time.Second)
