@@ -1,2 +1,5 @@
 /build/
 /coginit
+
+# macOS AppleDouble / Finder metadata
+._*
