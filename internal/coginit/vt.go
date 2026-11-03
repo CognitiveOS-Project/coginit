@@ -26,15 +26,15 @@ const (
 
 // Key codes (from linux/input-event-codes.h)
 const (
-	keyLeftCtrl    = 29
-	keyLeftAlt     = 56
-	keyBackspace   = 14
-	keySysRq       = 99
-	keyK           = 37
-	keyDelete      = 111
-	keyScrollLock  = 70
-	keyLeftMeta    = 125
-	keyGrave       = 41
+	keyLeftCtrl   = 29
+	keyLeftAlt    = 56
+	keyBackspace  = 14
+	keySysRq      = 99
+	keyK          = 37
+	keyDelete     = 111
+	keyScrollLock = 70
+	keyLeftMeta   = 125
+	keyGrave      = 41
 )
 
 // inputEvent mirrors struct input_event from linux/input.h.

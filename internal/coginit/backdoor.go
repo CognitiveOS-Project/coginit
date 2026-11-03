@@ -22,11 +22,11 @@ const (
 
 // comboState tracks currently pressed keys and scrolllock timing.
 type comboState struct {
-	mu             sync.Mutex
-	pressed        map[uint16]bool
-	scrollCount    int
-	scrollFirst    time.Time
-	onTrigger      func(combo string) // override in tests
+	mu          sync.Mutex
+	pressed     map[uint16]bool
+	scrollCount int
+	scrollFirst time.Time
+	onTrigger   func(combo string) // override in tests
 }
 
 func newComboState() *comboState {
