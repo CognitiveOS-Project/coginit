@@ -55,3 +55,12 @@ make build-static
 
 - **Docker**: `COPY --from=builder /path/to/coginit /usr/local/bin/coginit`
 - **ISO**: `tty1::respawn:/usr/local/bin/coginit` in inittab
+
+## Process Enforcements (MANDATORY)
+
+All work in this repo MUST follow the CognitiveOS Process Enforcements:
+
+- `product-specs/docs/ENFORCEMENTS.md` — SPECv1, GHW, VibeLeading, ABSEv1
+- `sdlc/docs/ENFORCEMENTS.md` — same content (mirror)
+
+These enforcements are binding on every contributor, agent, and automation. No work may bypass them except on explicit user instruction (maintainer emergency).
