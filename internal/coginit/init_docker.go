@@ -20,13 +20,13 @@ func runDockerInit() {
 
 	// 4. Start engines in order
 	startCograw()
-	waitForSocket("/cognitiveos/run/raw.sock", defaultSocketTimeout)
+	waitForSocket("/cognitiveos/run/raw.sock", defaultSocketTimeout())
 
 	startCoginfer()
 	waitForHTTP("http://127.0.0.1:11434/health", defaultHTTPTimeout)
 
 	startCognitiveosd()
-	waitForSocket("/cognitiveos/run/daemon.sock", defaultSocketTimeout)
+	waitForSocket("/cognitiveos/run/daemon.sock", defaultSocketTimeout())
 
 	// 5. Install runtime-stage dependencies
 	installDependencies("runtime")

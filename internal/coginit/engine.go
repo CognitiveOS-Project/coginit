@@ -9,10 +9,21 @@ import (
 )
 
 const (
-	defaultSocketTimeout = 10 * time.Second
 	defaultHTTPTimeout   = 15 * time.Second
 	maxLogSizeBytes      = 10 * 1024 * 1024 // 10MB — rotate when exceeded
 )
+
+// defaultSocketTimeout returns the socket wait timeout, configurable via
+// COGINIT_SOCKET_TIMEOUT env var (e.g. "30s", "1m"). Falls back to 10s.
+func defaultSocketTimeout() time.Duration {
+	d := 10 * time.Second
+	if v := os.Getenv("COGINIT_SOCKET_TIMEOUT"); v != "" {
+		if parsed, err := time.ParseDuration(v); err == nil {
+			d = parsed
+		}
+	}
+	return d
+}
 
 // modelPath is the path to the raw model GGUF file.
 // Override via coginit --model flag or SetModelPath().
