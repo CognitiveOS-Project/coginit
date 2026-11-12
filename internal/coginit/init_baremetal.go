@@ -30,7 +30,7 @@ func runBareMetalInit() {
 
 	// 6. Start engines in order with supervision
 	cmd := startCograw()
-	waitForSocket("/cognitiveos/run/raw.sock", defaultSocketTimeout)
+	waitForSocket("/cognitiveos/run/raw.sock", defaultSocketTimeout())
 	if cmd != nil {
 		supervise("cograw", cmd, startCograw)
 	}
@@ -42,7 +42,7 @@ func runBareMetalInit() {
 	}
 
 	cmd = startCognitiveosd()
-	waitForSocket("/cognitiveos/run/daemon.sock", defaultSocketTimeout)
+	waitForSocket("/cognitiveos/run/daemon.sock", defaultSocketTimeout())
 	if cmd != nil {
 		supervise("cognitiveosd", cmd, startCognitiveosd)
 	}
