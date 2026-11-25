@@ -60,9 +60,11 @@ func TestWaitForHTTP_Found(t *testing.T) {
 	}
 	defer func() { _ = ln.Close() }()
 
-	go func() { _ = http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})) }()
+	go func() {
+		_ = http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+	}()
 
 	waitForHTTP("http://"+ln.Addr().String()+"/health", 2*time.Second)
 }
